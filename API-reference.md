@@ -15,7 +15,7 @@ All component functions return a widget node. No CSS or React runtime is involve
 
 # Globals
 
-console logging and setTimeout/clearTimeout are available. Timers do not extend the run deadline. defineScript is also globally available. JSX types describe Kite nodes, not HTML.
+`console.log()` writes messages to Kite’s Logs. `setTimeout()` schedules a short callback during the current run; `clearTimeout()` cancels it. These are API names, not complete scripts. Timers do not extend the run deadline. `defineScript()` declares literal script metadata and is available without importing it. JSX types describe Kite widget nodes, not HTML.
 
 # Module kite
 

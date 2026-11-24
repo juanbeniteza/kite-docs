@@ -5,6 +5,9 @@ title: "Create scripts with Kite"
 {% raw %}
 # Create scripts with Kite
 
+New to Kite? Read [How Kite works](How-Kite-works.html), or give your coding agent
+the [agent guide](Agent-guide.html).
+
 Start with [Your first widget](Getting-started.html). You only need Kite on your iPhone;
 Xcode and a computer are not required to write scripts.
 

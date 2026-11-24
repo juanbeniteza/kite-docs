@@ -31,3 +31,10 @@ search.addEventListener('input', async () => {
     }
   } catch { if(revision === current) results.textContent = 'Search is unavailable. Use the navigation links below.'; }
 });
+
+const agentCopy = document.getElementById('copy-agent');
+if (agentCopy) agentCopy.addEventListener('click', async () => {
+  const instruction = 'Read https://juanbeniteza.github.io/kite-docs/llms-full.txt before writing a Kite script. Use only supported APIs and follow the documented runtime, layout and refresh limitations. Return a complete .tsx file with required permissions/secrets and installation/test steps. My idea: ';
+  try { await navigator.clipboard.writeText(instruction); agentCopy.textContent = 'Copied — paste into your agent'; }
+  catch { agentCopy.textContent = 'Use Copy code on the instruction below'; }
+});

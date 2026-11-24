@@ -1,0 +1,1885 @@
+# Kite: agent documentation bundle
+
+Current supported public APIs; roadmap features are not available. This bundle is generated with the guides and types. Consult the linked site for updates.
+
+# How Kite works
+
+Kite turns a small script into a native iPhone widget. You describe what to show,
+where to place it, and what should happen when someone taps a button. Kite handles
+turning that description into the widget you see on screen.
+
+You can start from an example and change its words, colors and settings. You don't
+need to build an iPhone app or connect your phone to a computer.
+
+## From an idea to a widget
+
+1. **Choose a starting point.** In Kite, create a Widget or Interactive widget.
+   Give it a name, or keep the suggested one.
+2. **Describe your content.** A script can show text, photos, progress, dates and
+   data from a service. Its layout uses building blocks: a vertical stack puts
+   items underneath each other; a horizontal stack puts them side by side.
+3. **Try it in Kite.** Tap Run to see a preview. Change the layout or settings and
+   Run again until it looks right. Errors and logs help you find problems.
+4. **Add it to your Home Screen.** Add the Kite Script widget, choose a size, then
+   select your script in Edit Widget. Each widget can have its own settings.
+5. **Let iOS update it.** Kite prepares the content when the system requests an
+   update. A refresh preference asks for updates; iOS chooses the actual timing.
+
+[Create your first widget](https://juanbeniteza.github.io/kite-docs/Getting-started.html) walks through all five steps with
+code you can copy. [Example scripts](https://juanbeniteza.github.io/kite-docs/index.html) give you a head start.
+
+## What is inside a script?
+
+Think of a script as a recipe with three parts:
+
+- **Its label:** the name, supported sizes and options such as a message or a goal.
+  In code, this is called `config`.
+- **Its layout:** instructions for drawing the widget. For example, “show a title,
+  a progress bar, and an Add button.” In code, this is `widget()`.
+- **Its actions:** instructions to run after a tap, such as saving another glass
+  of water. These are separate functions connected to the buttons.
+
+Text that looks like `widget()` is a name used in code. A name on its own isn't a
+complete script. The tutorials show complete files; the API reference describes
+individual pieces you can use inside those files.
+
+## Where do the numbers and images come from?
+
+A widget can use text you enter in settings, data saved by a button, information
+you allow it to read on your phone, or a request to an online service. Access to
+things like Calendar needs your permission. Some services also need an API key;
+keep keys in Kite's secrets settings, not in a file you share.
+
+Kite starts a fresh run each time it needs to prepare content. To remember a
+counter or completed habit, the script saves it in storage. A temporary variable
+alone won't remember its value the next time the widget runs.
+
+## Why doesn't everything update instantly?
+
+A Home Screen widget isn't an app that runs continuously. iOS gives it short
+opportunities to prepare its display so it can preserve battery life. It may show
+saved content between updates. The preview is the quickest place to test edits.
+
+Native countdown text can keep counting on screen without rerunning the script
+every second. Buttons can run a short action and request updated content. Neither
+mechanism makes a script a continuously running background process.
+
+## More than Home Screen widgets
+
+The same script can also provide a small Lock Screen view, an action that receives
+input from Shortcuts, or a switch/button in Control Center. Those surfaces have
+different sizes and behaviors, so test each one you plan to use. A script does not
+add itself to any of these places automatically.
+
+## Can an AI agent write the script?
+
+Yes. Give your agent the [agent guide](https://juanbeniteza.github.io/kite-docs/Agent-guide.html) and describe what you want
+it to show, which sizes you need, and where its data should come from. The guide
+lists Kite's supported APIs and limits so the agent doesn't assume it is building
+a web page. Review generated code before running it, especially if it uses private
+data or online services. You can then paste its complete `.tsx` file into Kite.
+
+
+---
+
+# Point your agent here
+
+Use this guide when asking an AI coding agent to create a Kite script. No access
+to the private app repository is needed. The documentation describes the current
+implementation; roadmap ideas are not available APIs.
+
+## Give your agent this instruction
+
+Copy this instruction and append your widget idea:
+
+```text
+Read https://juanbeniteza.github.io/kite-docs/llms-full.txt before writing code.
+Create a Kite script using only the documented APIs and runtime capabilities.
+Return one complete .tsx file, including config, imports and exported entry points.
+Explain required permissions/secrets, supported sizes, installation and test steps.
+State limitations honestly; do not invent APIs or promise exact background refreshes.
+My idea: ...
+```
+
+If the agent cannot open URLs, download the plain-text guide and attach it to the
+conversation. A link does not automatically give every agent browsing capability.
+
+## Read these sources
+
+- [How Kite works](https://juanbeniteza.github.io/kite-docs/How-Kite-works.html): a plain-language explanation for the user.
+- [API reference](https://juanbeniteza.github.io/kite-docs/API-reference.html): supported arguments, properties and return types.
+- [Type declarations](https://juanbeniteza.github.io/kite-docs/types/index.d.ts): the exact public contract.
+- [Scripting guide](https://juanbeniteza.github.io/kite-docs/Scripting-guide.html): entry points and native services.
+- [Daily Intention tutorial](https://juanbeniteza.github.io/kite-docs/Progressive-tutorial.html): a complete interactive script.
+- [Water Garden](https://juanbeniteza.github.io/kite-docs/examples/Water%20Garden.tsx): persisted widget actions.
+- [Quiet Frame](https://juanbeniteza.github.io/kite-docs/examples/Quiet%20Frame.tsx): native cached image loading and fallback.
+- [Focus Session](https://juanbeniteza.github.io/kite-docs/examples/Focus%20Session.tsx): timelines, timer and control.
+
+## Execution and output contract
+
+- Deliver a single self-contained `.tsx` file by default. JavaScript/JSX is also
+  supported, but TypeScript with JSX is the easiest shared format for examples.
+- Use imports from `kite` and `kite/ui`. JSX creates native widget nodes; it is not
+  React, HTML, CSS or a browser page. No React state/hooks, DOM, Node filesystem,
+  npm package runtime, browser `fetch`, `setInterval`, or dynamic `eval`/`Function`.
+  Use `http` for requests. Do not invent browser APIs from habit.
+- Export `config = defineScript({...})` with a literal object. Metadata is parsed
+  without executing the script. No computed fields, helper calls, spreads or
+  variables inside config. Dynamic logic belongs in exported functions/helpers.
+- `widget(ctx)` returns a Widget root or ascending `{ date, view }` timeline entries.
+  `run()` handles app-only work/logging. `shortcut(input)` returns action output.
+  `control` supplies button `press()` or toggle `get()`/`set(on)`.
+- Every run starts with fresh JavaScript state. Persist JSON with `storage` and
+  use `storage.update` for concurrent counters. Its callback can be retried: keep
+  external side effects outside it. Dates should be saved as strings/timestamps.
+- Buttons use `intent={exportedFunction}`, not a function call or inline closure.
+  `params` is a JSON object passed to the handler. Widget Toggle adds `isOn` to
+  that object: its handler receives `{ isOn, ...params }`. This differs from a
+  Control Center toggle's `set(on)`, which receives a boolean directly.
+- After a state change, return `{ reload: true }` and render the saved state again.
+  Do not claim that changing a local variable updates a widget.
+
+## Layout and system limits
+
+- Use only the components/properties in the type declarations. Supported content
+  includes stacks, grids, Text, Image, DateText, Gauge, ProgressView, Chart, Button,
+  Toggle, Link, Spacer and Divider. No arbitrary HTML tags, CSS classes, web fonts,
+  pixel font sizes or gradients unless an API explicitly documents them.
+- Use named fonts and point-based frames. Keep layouts compact and check every
+  declared family. Home Screen: small/medium/large, plus iPad extraLarge. Lock
+  Screen: accessoryInline/accessoryCircular/accessoryRectangular with system
+  tinting and restricted space. Don't promise a full-color Home Screen design on
+  an accessory surface. Do not promise buttons in every accessory family.
+- `ctx.date` is the rendering date; `ctx.displaySize` is in points, not pixels.
+  Use `DateText` rather than importing `Date` and shadowing JavaScript's Date.
+- iOS schedules widget runs. `refresh` is a hint, not a guaranteed interval.
+  Timelines schedule display entries; they don't execute arbitrary code later.
+  A native timer doesn't itself schedule notifications or trigger an action at zero.
+- Keep work brief. The current normal deadline is 10 seconds with cooperative
+  checks; native calls/engine built-ins aren't always interruptible. Don't add
+  background loops or claim a measured memory budget that isn't documented.
+- Phone compilation strips TS/JSX; it does not perform full TypeScript checking.
+  Validate settings, missing storage and remote JSON at runtime. Gracefully handle
+  permission denial, network failures and empty datasets.
+
+## Native access and data
+
+- Declare only needed permissions: network, files, calendar, reminders, location,
+  notifications. Run in the app first for any required system prompts. Extensions
+  cannot prompt for access. Declaration alone doesn't grant authorization.
+- `storage`, `secrets`, `device` and `log` need no config permission. Secrets are
+  per-script Keychain values: use `secrets.get`, not hardcoded tokens or logs.
+- Use `http.image` for photos, then its returned source in Image. Native decoding
+  downsizes the image; use caching and a useful offline view. Don't implement
+  full-resolution image processing in JS.
+- Use Kite's files API within its roots. Local files are shared with widget runs;
+  iCloud file access is app-only. Do not assume arbitrary device filesystem access.
+- Widget editor settings currently have four generic slots. App script settings
+  expose the fuller configuration. Don't promise dynamically generated unlimited
+  named system parameters or automatic placement of widgets/controls.
+- Scriptable compatibility and Mac CLI/sync are roadmap work. Don't generate
+  Scriptable globals, ListWidget or CLI commands as though already supported.
+- Kite is for trusted scripts, not a sandbox for hostile source. Explain external
+  service calls and sensitive data use. Don't embed credentials in shared output.
+
+## Agent handoff checklist
+
+Before handing over a script, check imports, literal config, complete exported
+entry points, family layouts, persistent state, exported interaction references,
+permissions and failure fallbacks. Separate APIs you verified from assumptions.
+If a service contract is unknown, ask for it or clearly mark a placeholder URL;
+never fabricate a working endpoint or claim testing you haven't performed.
+
+Return installation steps: create a script, paste the complete file, Run in Kite,
+configure any settings/secrets, check Preview/Logs, then add and configure Kite
+Script, the Shortcuts action or the matching Kite control. Include expected output
+and a repeatable tap/run test. Label preview/compiler checks separately from
+physical-device checks. Don't require reinstalling the app for a script edit.
+
+
+---
+
+# Scripting guide
+
+[Start with a complete first widget](https://juanbeniteza.github.io/kite-docs/Getting-started.html) if you're new to Kite.
+Each code block below is a separate, complete script unless described otherwise.
+
+## How a script runs
+
+Kite calls exported entry points for the surface you're using:
+
+| Export | Called for | Result |
+| --- | --- | --- |
+| `widget(ctx)` | Widget rendering and preview | A `Widget` tree or dated timeline entries |
+| `run()` | App execution for a run-only script | Work and console output |
+| `shortcut(input)` | A Shortcuts action | Text, JSON, number or a supported file result |
+| `control` | Control Center button or switch | `press()`, or `get()` and `set(on)` |
+| Other exported functions | Widget Button/Toggle handlers | Usually `{ reload: true }` |
+
+Run in the editor builds the script and tests its available surface; a control's
+Preview has Press or switch controls. Defining a function doesn't execute its body.
+For example, Focus Session starts when you press Start, not simply when you open it.
+
+Each execution gets a fresh JavaScript context. A normal variable doesn't persist
+between executions. Use `storage` for saved state shared by the same script's
+app, widget and control runs. Different scripts have separate storage.
+
+## Save data and add a button
+
+This counter is a complete interactive widget. Tap **Add** in Preview or on the
+Home Screen; the number should survive another Run.
+
+```tsx
+import { storage } from "kite";
+import { Widget, VStack, Text, Button } from "kite/ui";
+
+export const config = defineScript({
+  name: "My Counter",
+  widget: { families: ["small", "medium"], refresh: "daily" },
+});
+
+export async function increment() {
+  await storage.update<number>("count", old => (old ?? 0) + 1);
+  return { reload: true };
+}
+
+export async function widget() {
+  const count = await storage.get<number>("count") ?? 0;
+  return <Widget><VStack spacing={8}>
+    <Text font="largeTitle" weight="bold">{count}</Text>
+    <Button intent={increment} label="Add" symbol="plus.circle.fill" />
+  </VStack></Widget>;
+}
+```
+
+Use the exported function reference `intent={increment}`, not `increment()`.
+The latter would call it while building the view. For parameters, pass a JSON
+object through the Button's `params` property and accept it in your handler.
+Prefer `storage.update` for counters so simultaneous actions don't overwrite
+one another. `get`, `set`, `remove` and `keys` are also available. Store JSON values,
+not functions or Date objects; store a date as an ISO string or timestamp.
+
+## Layout and size
+
+`Widget` contains `VStack`, `HStack` and `ZStack` containers. Use `Spacer`, `Divider`,
+`Text`, `Image`, `DateText`, `Gauge`, `ProgressView`, `Chart`, `Button`, `Toggle`
+and `Link` inside them. These render as native SwiftUI; CSS and HTML aren't supported.
+
+Common properties include `padding`, `background`, `cornerRadius`, `opacity` and
+`frame`. Text supports named fonts such as `headline`, `caption` and `largeTitle`,
+plus `weight`, `color` and `lineLimit`. Sizes are in points.
+
+Use `ctx.family` to show less content in `small` than in `large`. Home Screen
+families are `small`, `medium`, `large` and iPad `extraLarge`. Lock Screen families
+are `accessoryInline`, `accessoryCircular` and `accessoryRectangular`. Keep accessory
+layouts simple: they use system tinting and have very little space. Choose a
+supported family in `config.widget.families` and check it in Preview.
+
+See [Daylight](https://juanbeniteza.github.io/kite-docs/examples/Daylight.tsx) for responsive layouts and progress.
+
+## Settings and secrets
+
+Declare settings as literal objects in `config.settings`, then read values through
+`ctx.settings` in `widget`. Types are `text`, `number`, `toggle`, `enum`, `color` and
+`secret`. Use defaults and validate values before calculations. The first-widget
+tutorial demonstrates a text setting.
+
+The current Home Screen widget editor has four generic setting slots. It can't
+create unlimited named system fields from your source. Use Kite's script settings
+for the full editor. Secret values belong in the app's secrets settings/Keychain;
+read them with `await secrets.get("apiKey")` from `kite`. Don't hardcode keys in
+source or log them.
+
+`config` cannot depend on variables, function calls, spread expressions or computed
+values. For instance, put `"My Widget"` directly in `config.name`, rather than a
+variable containing that string. Ordinary dynamic logic belongs in functions.
+
+## Network requests and photos
+
+Declare `permissions: ["network"]` in `config`. Import `http` from `kite`.
+`await http.json(url, { cache: "15m" })` downloads parsed JSON. With
+`http.fetch`, check `response.ok` before reading `response.json()` or `text()`.
+Handle errors and missing response fields so the widget still has useful content.
+
+For images, use `await http.image(url, { cache: "1d" })`, then put the returned
+source into `<Image src={source} />`. Kite downsizes images natively; don't download
+full images as raw data just to resize them in JavaScript. `maxPixelSize` optionally
+sets the longest edge in pixels.
+
+[Quiet Frame](https://juanbeniteza.github.io/kite-docs/examples/Quiet%20Frame.tsx) is a complete downloadable photo widget
+with a fallback. It needs internet access on the first load, but no API key.
+
+## Permissions and native services
+
+| Module imported from `kite` | Permission in `config.permissions` | Purpose |
+| --- | --- | --- |
+| `http` | `network` | Requests, JSON and cached images |
+| `files` | `files` | Read/write text files |
+| `calendar` | `calendar` | Read calendars and create events |
+| `reminders` | `reminders` | Read, create and complete reminders |
+| `location` | `location` | Coordinates and geocoding |
+| `notify` | `notifications` | Schedule/cancel notifications |
+| `storage`, `secrets`, `device`, `log` | No declared permission | Saved JSON, Keychain, device info and logging |
+
+Run permission-using scripts in Kite first. Only the app can present system
+permission dialogs. A declaration alone doesn't grant system access. Keep background
+work brief and handle denied access. iCloud file access is app-only; local script
+files use shared storage available to widgets. Never assume arbitrary filesystem
+access. See [the declarations](https://juanbeniteza.github.io/kite-docs/types/index.d.ts) for each method's arguments.
+
+## Shortcuts
+
+Create a **Shortcuts action** starter, or paste this script:
+
+```tsx
+export const config = defineScript({ name: "Uppercase Text" });
+
+export async function shortcut(input: unknown) {
+  const text = input == null ? "" : String(input);
+  return text.toUpperCase();
+}
+```
+
+Run it in Kite first. In Apple's Shortcuts app, create a shortcut, search for Kite,
+add its run-script action, select **Uppercase Text**, and supply text as the input.
+Add Show Result after it. With input `hello`, the result should be `HELLO`.
+Kite provides separate actions for general text/JSON, number and file results;
+choose the one matching your return value. This example uses text/JSON. Device
+validation of the full Shortcuts UI flow is still pending.
+
+## Control Center
+
+This is a complete persisted switch. It doesn't require a widget:
+
+```tsx
+import { storage } from "kite";
+import type { Control } from "kite";
+
+export const config = defineScript({ name: "My Switch" });
+
+export const control: Control = {
+  kind: "toggle",
+  title: "My Switch",
+  symbol: "bolt.fill",
+  async get() { return await storage.get<boolean>("on") ?? false; },
+  async set(on: boolean) {
+    await storage.set("on", on);
+    return { reload: true };
+  },
+};
+```
+
+Run it and test the switch in Preview. Then edit Control Center, add **Kite Toggle**,
+and choose **My Switch** in its configuration. It saves a boolean; it doesn't
+operate a light or device until you add that integration yourself.
+
+For a momentary action, use `kind: "button"` with `async press()` and add
+**Kite Button** instead. [Focus Session](https://juanbeniteza.github.io/kite-docs/examples/Focus%20Session.tsx) combines a
+button control, widget and shared storage in one script.
+
+## Dates, countdowns and refreshes
+
+Use `ctx.date` as the rendering date. `DateText` with `style="timer"` displays a
+native relative timer; it doesn't require rerunning your script every second.
+Return an array of `{ date, view }` entries to schedule different views for future
+times, in ascending order. Daylight and Focus Session demonstrate this.
+
+`refresh` hints include `"15m"`, `"30m"`, `"hourly"`, `"daily"` and `"never"`.
+iOS controls actual widget execution. Don't use a JavaScript loop or `setInterval`
+to keep a widget alive. Timers don't extend Kite's run deadline, and a displayed
+countdown alone doesn't schedule a notification or execute a function when it ends.
+
+## Runtime boundaries
+
+Use `kite` modules rather than browser or Node APIs: there is no DOM, React runtime,
+Node filesystem or Node package loader. TypeScript annotations are stripped on the
+phone; the phone doesn't perform a full TypeScript typecheck. Dynamic code such as
+`eval` and `new Function` is blocked. Deadline checks are cooperative; Kite is not a
+security sandbox for hostile source. Read scripts before importing them.
+
+To debug, add `console.log("count", count)`, Run, and open Logs. Avoid logging secrets
+or personal data. Keep functions small and test changes in Preview before checking
+the system widget. Share the `.tsx` file, with keys removed, through Files or a link.
+
+
+---
+
+# Build a daily intention widget
+
+This tutorial builds one widget in five checkpoints. Start in Scripts → + → New
+script → Widget. Name it Daily Intention. Replace its source with the complete file
+at the end of this page, then explore each checkpoint. In the in-app guide,
+**Create script from example** installs a separate editable copy.
+
+## 1. Layout: make something visible
+
+The final file uses a Widget with a vertical stack. The first Text is a heading;
+the second displays your intention. Find `background="#172B28"` and change it to
+`"#1B1530"`. Run and select small, then medium in Preview.
+
+Expected: the same content fits both sizes and the background changes. Font names
+are semantic sizes, not CSS. Keep enough contrast between text and background.
+
+## 2. Settings: make it personal
+
+`config.settings.intention` creates a text preference. The function reads it from
+`ctx.settings.intention`. Open the script's settings in Kite and enter one small
+goal. Run again.
+
+Expected: the goal replaces “Take a short walk.” without editing code. In a real
+Home Screen widget, configure that widget's settings separately. App preview
+settings and system widget settings are different configurations.
+
+## 3. Saved data: remember completion
+
+`storage.get` loads a saved boolean. The `dayKey()` helper includes the local
+calendar date, so completing today's intention doesn't mark tomorrow complete.
+This file reads state only when rendered; iOS decides when the next render happens.
+
+Run several times. Expected: Run alone doesn't mark anything complete. A module
+variable would disappear between executions; storage persists for this script.
+
+## 4. Interaction: do the work on tap
+
+`complete()` is exported so the button can invoke it in a later execution. It saves
+true, then asks for a reload. Tap Done in Preview, then Run again.
+
+Expected: the message says Completed today. Repeated taps are safe. To try again
+today, change the storage key prefix to `intention-test-` in both functions (the
+shared `dayKey()` helper already handles this), or create a new copy of the script.
+
+## 5. Home Screen: test outside the app
+
+Run once in Kite. Add a small or medium Kite Script widget and choose Daily
+Intention. Set the intention for that widget, then tap Done on the Home Screen.
+
+Expected: the button records completion without opening an editor. If Preview
+works but the Home Screen doesn't, use Troubleshooting before changing the code.
+Do not treat refresh hints as exact timers.
+
+## Complete script
+
+```tsx
+import { storage } from "kite";
+import type { WidgetContext } from "kite";
+import { Widget, VStack, Text, Button } from "kite/ui";
+
+export const config = defineScript({
+  name: "Daily Intention",
+  icon: { symbol: "leaf.fill", color: "#72DCC5" },
+  widget: { families: ["small", "medium"], refresh: "hourly" },
+  settings: {
+    intention: { type: "text", title: "Intention", default: "Take a short walk." },
+  },
+});
+
+function dayKey() {
+  const date = new Date();
+  return `intention-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+export async function complete() {
+  await storage.set(dayKey(), true);
+  return { reload: true };
+}
+
+export async function widget(ctx: WidgetContext) {
+  const done = await storage.get<boolean>(dayKey()) ?? false;
+  return <Widget background="#172B28"><VStack align="leading" spacing={8}>
+    <Text font="caption" weight="bold" color="#72DCC5">TODAY'S INTENTION</Text>
+    <Text font="headline" color="#FFFFFF" lineLimit={3}>
+      {String(ctx.settings.intention ?? "Take a short walk.")}
+    </Text>
+    {done
+      ? <Text font="caption" color="#72DCC5">Completed today</Text>
+      : <Button intent={complete} label="Done" symbol="checkmark.circle.fill" />}
+  </VStack></Widget>;
+}
+```
+
+Next experiments: add a reset handler, display a second line only for medium, or
+replace the text setting with an enum of goals. Keep config values literal and
+export every interaction handler. See API reference for exact properties.
+
+
+---
+
+# API reference
+
+Generated from the current public declarations. `?` means optional; `Promise<T>`
+means await the result. Import values from the module heading. Type annotations
+help your editor, but the phone strips them rather than checking them.
+
+Defaults are stated where guaranteed by declarations. Other optional rendering
+properties use native renderer/system behavior; specify them when appearance matters.
+All component functions return a widget node. No CSS or React runtime is involved.
+
+# Globals
+
+`console.log()` writes messages to Kite’s Logs. `setTimeout()` schedules a short callback during the current run; `clearTimeout()` cancels it. These are API names, not complete scripts. Timers do not extend the run deadline. `defineScript()` declares literal script metadata and is available without importing it. JSX types describe Kite widget nodes, not HTML.
+
+# Module kite
+
+## Family
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type Family = "small" | "medium" | "large" | "extraLarge" | "accessoryCircular" | "accessoryRectangular" | "accessoryInline";
+```
+
+## JSONValue
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue };
+```
+
+## Surface
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type Surface = "app" | "widget" | "intent" | "control" | "shortcut";
+```
+
+## Permission
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type Permission = "network" | "files" | "calendar" | "reminders" | "location" | "notifications";
+```
+
+## SettingDeclaration
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type SettingDeclaration =
+  | { type: "enum"; options: readonly string[]; default?: string; title?: string }
+  | { type: "text"; default?: string; title?: string; placeholder?: string }
+  | { type: "number"; default?: number; min?: number; max?: number; title?: string }
+  | { type: "toggle"; default?: boolean; title?: string }
+  | { type: "color"; default?: string; title?: string }
+  | { type: "secret"; title?: string };
+```
+
+## ScriptConfig
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface ScriptConfig {
+  name?: string;
+  description?: string;
+  icon?: { symbol: string; color?: string };
+  widget?: {
+    families?: readonly Family[];
+    /** A hint for the next timeline request. iOS decides when widgets actually refresh. */
+    refresh?: "never" | "15m" | "30m" | "hourly" | "daily" | number;
+  };
+  /** Shown natively when the user edits the widget. Secrets live in the Keychain. */
+  settings?: Record<string, SettingDeclaration>;
+  permissions?: readonly Permission[];
+}
+```
+
+## SettingValues
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type SettingValues = Record<string, string | number | boolean | undefined> & { parameter?: string };
+```
+
+## WidgetContext
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface WidgetContext {
+  family: Family;
+  settings: SettingValues;
+  surface: Surface;
+  /** ISO 8601 time of this run. */
+  date: string;
+  /** Point size of the widget, when known. */
+  displaySize: { width: number; height: number };
+  scriptId: string;
+}
+```
+
+## TimelineEntry
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface TimelineEntry { date: Date | string | number; view: import("kite/ui").WidgetNode; }
+```
+
+## WidgetResult
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type WidgetResult = import("kite/ui").WidgetNode | TimelineEntry[];
+```
+
+## IntentResult
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface IntentResult { reload?: boolean }
+```
+
+## ControlToggle
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface ControlToggle { kind: "toggle"; title?: string; symbol?: string; get(): boolean | Promise<boolean>; set(on: boolean): void | IntentResult | Promise<void | IntentResult>; }
+```
+
+## ControlButton
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface ControlButton { kind: "button"; title?: string; symbol?: string; press(): void | IntentResult | Promise<void | IntentResult>; }
+```
+
+## Control
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export type Control = ControlToggle | ControlButton;
+```
+
+## defineScript
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export function defineScript<const C extends ScriptConfig>(config: C): C;
+```
+
+## RequestOptions
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface RequestOptions {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
+  headers?: Record<string, string>;
+  body?: string;
+  /** Serve from Kite's shared cache when fresher than this, e.g. "30s", "15m", "1h", "1d". */
+  cache?: string;
+  /** Seconds, default 15, max 30. */
+  timeout?: number;
+}
+```
+
+## Response
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface Response {
+  readonly status: number;
+  readonly ok: boolean;
+  readonly headers: Record<string, string>;
+  readonly url: string;
+  readonly fromCache: boolean;
+  readonly body: string;
+  text(): Promise<string>;
+  json<T = any>(): Promise<T>;
+}
+```
+
+## ImageOptions
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface ImageOptions extends Pick<RequestOptions, "headers" | "cache" | "timeout"> {
+  /** Longest edge in pixels. Defaults to the widget's pixel size. Images are downscaled natively. */
+  maxPixelSize?: number;
+}
+```
+
+## http
+
+Requires network. Cache windows are strings such as "15m". Handle failed requests. Request timeout is in seconds (default 15, maximum 30). image returns a cached image source; native downscaling defaults to the widget pixel size.
+
+```ts
+export const http: {
+  fetch(url: string, options?: RequestOptions): Promise<Response>;
+  json<T = any>(url: string, options?: RequestOptions): Promise<T>;
+  /** Downloads and natively downscales an image. Returns a source for <Image src>. */
+  image(url: string, options?: ImageOptions): Promise<string>;
+};
+```
+
+## storage
+
+Per-script JSON shared across surfaces. Missing keys return undefined. Use update for counters, since it retries concurrent changes; keep its callback free of external side effects.
+
+```ts
+export const storage: {
+  get<T extends JSONValue = JSONValue>(key: string): Promise<T | undefined>;
+  set(key: string, value: JSONValue): Promise<void>;
+  update<T extends JSONValue = JSONValue>(key: string, fn: (value: T | undefined) => T | Promise<T>): Promise<T>;
+  remove(key: string): Promise<void>;
+  keys(): Promise<string[]>;
+};
+```
+
+## secrets
+
+Per-script Keychain values. Missing names return undefined. Configure keys in the app; never put them in a shared source file.
+
+```ts
+export const secrets: {
+  get(name: string): Promise<string | undefined>;
+  set(name: string, value: string): Promise<void>;
+  remove(name: string): Promise<void>;
+};
+```
+
+## FileOptions
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface FileOptions {
+  /** "local" (default, shared with widgets) or "icloud" (app only). */
+  location?: "local" | "icloud";
+}
+```
+
+## FileEntry
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface FileEntry { name: string; path: string; isDirectory: boolean; size: number; modified: string }
+```
+
+## files
+
+Requires files. Paths are relative to Kite file roots. Default location is local (shared with widgets); icloud is app-only. Text methods use strings, not arbitrary binary buffers.
+
+```ts
+export const files: {
+  read(path: string, options?: FileOptions): Promise<string>;
+  write(path: string, text: string, options?: FileOptions): Promise<void>;
+  append(path: string, text: string, options?: FileOptions): Promise<void>;
+  list(path?: string, options?: FileOptions): Promise<FileEntry[]>;
+  exists(path: string, options?: FileOptions): Promise<boolean>;
+  remove(path: string, options?: FileOptions): Promise<void>;
+  /** Path prefix for a folder bookmarked in Kite's settings, e.g. "bookmark:Notes/". */
+  bookmark(name: string): Promise<string>;
+};
+```
+
+## CalendarInfo
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface CalendarInfo { id: string; title: string; color: string; allowsModifications: boolean }
+```
+
+## CalendarEvent
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface CalendarEvent {
+  id: string; title: string; start: Date; end: Date; isAllDay: boolean;
+  location?: string; notes?: string; calendar: string; calendarColor: string;
+}
+```
+
+## NewEvent
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface NewEvent { title: string; start: Date | string; end: Date | string; isAllDay?: boolean; location?: string; notes?: string; calendar?: string }
+```
+
+## calendar
+
+Requires calendar and system authorization granted from the app. Events use date bounds; pass explicit bounds when you need a particular day.
+
+```ts
+export const calendar: {
+  calendars(): Promise<CalendarInfo[]>;
+  events(options?: { from?: Date | string; to?: Date | string; calendars?: string[]; limit?: number }): Promise<CalendarEvent[]>;
+  createEvent(event: NewEvent): Promise<CalendarEvent>;
+};
+```
+
+## Reminder
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface Reminder { id: string; title: string; due?: Date; completed: boolean; completedAt?: Date; notes?: string; list: string; priority: number }
+```
+
+## reminders
+
+Requires reminders and system authorization. complete marks an existing reminder by id.
+
+```ts
+export const reminders: {
+  list(options?: { due?: Date | string; completed?: boolean; lists?: string[]; limit?: number }): Promise<Reminder[]>;
+  create(reminder: { title: string; due?: Date | string; notes?: string; list?: string; priority?: number }): Promise<Reminder>;
+  complete(id: string): Promise<void>;
+};
+```
+
+## Coordinates
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface Coordinates { latitude: number; longitude: number; accuracy: number; altitude?: number; timestamp: Date }
+```
+
+## Place
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface Place { name?: string; locality?: string; region?: string; country?: string; postalCode?: string; latitude: number; longitude: number }
+```
+
+## location
+
+Requires location. Run in the app first for authorization; handle unavailable locations.
+
+```ts
+export const location: {
+  current(options?: { accuracy?: "best" | "tenMeters" | "hundredMeters" | "kilometer" | "threeKilometers" }): Promise<Coordinates>;
+  geocode(query: string): Promise<Place[]>;
+  reverse(latitude: number, longitude: number): Promise<Place[]>;
+};
+```
+
+## notify
+
+Requires notifications. schedule returns an id; keep it to cancel later. action is a URL opened when the notification is tapped.
+
+```ts
+export const notify: {
+  /** Returns the notification id. `action` is a URL opened when the notification is tapped. */
+  schedule(options: { title: string; body?: string; at?: Date | string; action?: string; id?: string }): Promise<string>;
+  cancel(id: string): Promise<void>;
+};
+```
+
+## device
+
+No declared permission. battery level can be null; handle unknown battery state.
+
+```ts
+export const device: {
+  readonly locale: string;
+  readonly colorScheme: "light" | "dark";
+  readonly screen: { width: number; height: number; scale: number };
+  readonly model: string;
+  readonly systemVersion: string;
+  battery(): Promise<{ level: number | null; state: "unknown" | "unplugged" | "charging" | "full" }>;
+};
+```
+
+## log
+
+No declared permission. Logs appear in Kite; console.log/info/debug/warn/error are also available. Avoid private data.
+
+```ts
+export const log: {
+  debug(...values: unknown[]): void;
+  info(...values: unknown[]): void;
+  warn(...values: unknown[]): void;
+  error(...values: unknown[]): void;
+};
+```
+
+# Module kite/ui
+
+## WidgetNode
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface WidgetNode {
+  type: string;
+  props?: Record<string, JSONValue>;
+  children?: (WidgetNode | string)[];
+}
+type Child = WidgetNode | string | number | boolean | null | undefined | Child[];
+type Color = string;
+type Length = number | "infinity";
+type Alignment = "center" | "leading" | "trailing" | "top" | "bottom" | "topLeading" | "topTrailing" | "bottomLeading" | "bottomTrailing";
+type Font = "largeTitle" | "title" | "title2" | "title3" | "headline" | "subheadline" | "body" | "callout" | "footnote" | "caption" | "caption2";
+type IntentFunction = (params: any) => unknown;
+```
+
+## Modifiers
+
+See the signature for supported fields, optional values and return types.
+
+```ts
+export interface Modifiers {
+  padding?: number | { top?: number; leading?: number; bottom?: number; trailing?: number; horizontal?: number; vertical?: number };
+  frame?: { width?: number; height?: number; minWidth?: number; maxWidth?: Length; minHeight?: number; maxHeight?: Length; alignment?: Alignment };
+  background?: Color;
+  cornerRadius?: number;
+  opacity?: number;
+  foreground?: Color;
+  widgetAccentable?: boolean;
+  privacySensitive?: boolean;
+}
+interface Container extends Modifiers { children?: Child }
+```
+
+## Widget
+
+Root of a widget tree. url sets its open destination. Backgrounds on Lock Screen accessories are controlled by the system.
+
+```ts
+export function Widget(props: Container & { url?: string; background?: Color; relevance?: number }): WidgetNode;
+```
+
+## VStack
+
+Vertical layout. align controls horizontal alignment; spacing is in points.
+
+```ts
+export function VStack(props: Container & { align?: "leading" | "center" | "trailing"; spacing?: number }): WidgetNode;
+```
+
+## HStack
+
+Horizontal layout. align controls vertical alignment; spacing is in points.
+
+```ts
+export function HStack(props: Container & { align?: "top" | "center" | "bottom"; spacing?: number }): WidgetNode;
+```
+
+## ZStack
+
+Layers children back to front. align positions them within the stack.
+
+```ts
+export function ZStack(props: Container & { align?: Alignment }): WidgetNode;
+```
+
+## Grid
+
+Contains GridRow children. hSpacing and vSpacing control gaps in points.
+
+```ts
+export function Grid(props: Container & { hSpacing?: number; vSpacing?: number; align?: Alignment }): WidgetNode;
+```
+
+## GridRow
+
+One row of cells inside Grid.
+
+```ts
+export function GridRow(props: Container): WidgetNode;
+```
+
+## Text
+
+children is the displayed content. Use named fonts and hex colors. lineLimit limits wrapping; minScale permits shrinking to fit.
+
+```ts
+export function Text(props: Modifiers & { font?: Font; color?: Color; weight?: "regular" | "medium" | "semibold" | "bold" | "heavy"; design?: "default" | "rounded" | "monospaced" | "serif"; lineLimit?: number; minScale?: number; align?: "leading" | "center" | "trailing"; children?: Child }): WidgetNode;
+```
+
+## Image
+
+Use symbol for SF Symbols or src for a cached image source. aspect controls fit/fill. Set a frame when constraining a photo.
+
+```ts
+export function Image(props: Modifiers & { src?: string; symbol?: string; resizable?: boolean; aspect?: "fit" | "fill"; color?: Color; font?: Font }): WidgetNode;
+```
+
+## Date
+
+Native date display. Prefer importing DateText to avoid shadowing JavaScript Date. timer updates without executing the script each second.
+
+```ts
+export function Date(props: Modifiers & { value: globalThis.Date | string | number; style?: "relative" | "timer" | "time" | "date" | "offset"; font?: Font; color?: Color }): WidgetNode;
+```
+
+## DateText
+
+Alias of the Date component, recommended to preserve access to global Date.
+
+```ts
+export const DateText: typeof Date;
+```
+
+## Gauge
+
+Value indicator. Supply range explicitly for a known scale and choose linear/circular style.
+
+```ts
+export function Gauge(props: Modifiers & { value: number; range?: [number, number]; label?: string; style?: "linear" | "circular"; color?: Color }): WidgetNode;
+```
+
+## ProgressView
+
+Progress indicator. Supply value and total explicitly for a known scale.
+
+```ts
+export function ProgressView(props: Modifiers & { value: number; total?: number; label?: string; color?: Color }): WidgetNode;
+```
+
+## Chart
+
+data is an array of records; x and y name fields. Set mark explicitly for line, bar or area.
+
+```ts
+export function Chart(props: Modifiers & { data: Record<string, JSONValue>[]; mark?: "line" | "bar" | "area" | "point"; x: string; y: string; color?: Color }): WidgetNode;
+```
+
+## Button
+
+intent must reference an exported function. params are JSON data passed to it. Use label/symbol or child content.
+
+```ts
+export function Button(props: Modifiers & { intent: IntentFunction; params?: Record<string, JSONValue>; symbol?: string; label?: string; children?: Child }): WidgetNode;
+```
+
+## Toggle
+
+isOn is the persisted value from your script; its exported intent receives the new state. Render from saved state again after the action.
+
+```ts
+export function Toggle(props: Modifiers & { isOn: boolean; intent: IntentFunction; params?: Record<string, JSONValue>; label?: string; symbol?: string; children?: Child }): WidgetNode;
+```
+
+## Link
+
+Wrap content in a URL destination.
+
+```ts
+export function Link(props: Container & { url: string }): WidgetNode;
+```
+
+## Spacer
+
+Flexible empty space; minLength sets a minimum in points.
+
+```ts
+export function Spacer(props?: Modifiers & { minLength?: number }): WidgetNode;
+```
+
+## Divider
+
+Native separator between content.
+
+```ts
+export function Divider(props?: Modifiers): WidgetNode;
+```
+
+# Native module usage examples
+
+These are fragments to use inside an async entry point. Import the named module
+from kite and declare its permission as described above. URLs are placeholders;
+supply your own endpoint and validate its response.
+
+## http example
+
+```ts
+const data = await http.json("https://example.com/data.json", { cache: "15m" });
+```
+
+## storage example
+
+```ts
+await storage.update<number>("count", old => (old ?? 0) + 1);
+```
+
+## secrets example
+
+```ts
+const token = await secrets.get("apiKey");
+```
+
+## files example
+
+```ts
+await files.append("Notes.txt", "A note\n");
+```
+
+## calendar example
+
+```ts
+const events = await calendar.events({ from: new Date(), limit: 5 });
+```
+
+## reminders example
+
+```ts
+const tasks = await reminders.list({ completed: false });
+```
+
+## location example
+
+```ts
+const coordinates = await location.current({ accuracy: "kilometer" });
+```
+
+## notify example
+
+```ts
+const id = await notify.schedule({ title: "Take a break", at: new Date(Date.now() + 60000) });
+```
+
+## device example
+
+```ts
+const battery = await device.battery();
+```
+
+## log example
+
+```ts
+log.info("Widget rendered");
+```
+
+# Component examples
+
+These JSX fragments go inside a widget return. Import their components from kite/ui.
+Button and Toggle use a placeholder exported handler: implement its persisted
+state changes in your script (see the interactive tutorial). For photos, use an
+Image src returned by http.image rather than symbol. GridRow is demonstrated inside Grid.
+
+## Widget example
+
+```jsx
+<Widget background="#172B28"><Text>Hello</Text></Widget>
+```
+
+## VStack example
+
+```jsx
+<VStack align="leading" spacing={8}><Text>First</Text><Text>Second</Text></VStack>
+```
+
+## HStack example
+
+```jsx
+<HStack spacing={8}><Image symbol="sun.max.fill" /><Text>Sunny</Text></HStack>
+```
+
+## ZStack example
+
+```jsx
+<ZStack align="bottomLeading"><Text>Layer one</Text><Text>Layer two</Text></ZStack>
+```
+
+## Grid example
+
+```jsx
+<Grid hSpacing={8} vSpacing={4}><GridRow><Text>A</Text><Text>B</Text></GridRow></Grid>
+```
+
+## Text example
+
+```jsx
+<Text font="headline" weight="bold" color="#72DCC5" lineLimit={2}>Hello</Text>
+```
+
+## Image example
+
+```jsx
+<Image symbol="heart.fill" font="title" color="#FF6688" />
+```
+
+## DateText example
+
+```jsx
+<DateText value={new Date(Date.now() + 60000)} style="timer" font="title" />
+```
+
+## Gauge example
+
+```jsx
+<Gauge value={3} range={[0, 10]} style="circular" label="Steps" />
+```
+
+## ProgressView example
+
+```jsx
+<ProgressView value={3} total={8} label="Water" color="#72DCC5" />
+```
+
+## Chart example
+
+```jsx
+<Chart data={[{day: "Mon", count: 2}, {day: "Tue", count: 5}]} mark="bar" x="day" y="count" />
+```
+
+## Button example
+
+```jsx
+<Button intent={handler} params={{amount: 1}} label="Add" symbol="plus" />
+```
+
+## Toggle example
+
+```jsx
+<Toggle isOn={false} intent={handler} label="Enabled" />
+```
+
+## Link example
+
+```jsx
+<Link url="https://example.com"><Text>Open website</Text></Link>
+```
+
+## Spacer example
+
+```jsx
+<Spacer minLength={8} />
+```
+
+## Divider example
+
+```jsx
+<Divider />
+```
+
+# Shared layout types
+
+These types explain the aliases used by component signatures. All components
+accept Modifiers. Colors are strings such as hex values; lengths are points.
+
+```ts
+type Child = WidgetNode | string | number | boolean | null | undefined | Child[];
+  type Color = string;
+  type Length = number | "infinity";
+  type Alignment = "center" | "leading" | "trailing" | "top" | "bottom" | "topLeading" | "topTrailing" | "bottomLeading" | "bottomTrailing";
+  type Font = "largeTitle" | "title" | "title2" | "title3" | "headline" | "subheadline" | "body" | "callout" | "footnote" | "caption" | "caption2";
+  type IntentFunction = (params: any) => unknown;
+
+  /** Modifiers available on every component. */
+  export interface Modifiers {
+    padding?: number | { top?: number; leading?: number; bottom?: number; trailing?: number; horizontal?: number; vertical?: number };
+    frame?: { width?: number; height?: number; minWidth?: number; maxWidth?: Length; minHeight?: number; maxHeight?: Length; alignment?: Alignment };
+    background?: Color;
+    cornerRadius?: number;
+    opacity?: number;
+    foreground?: Color;
+    widgetAccentable?: boolean;
+    privacySensitive?: boolean;
+  }
+  interface Container extends Modifiers { children?: Child }
+```
+
+
+---
+
+# Troubleshooting
+
+Use this order: save and Run in Kite → read the first error → check Preview → test
+the actual widget, shortcut or control. Fix one thing at a time. Logs can contain
+personal information; remove tokens and private data before sharing them.
+
+## Compile errors
+
+**Unexpected token / JSX parse error:** confirm the filename ends in `.tsx` or
+`.jsx` when it contains tags. Check matching braces, parentheses, quotes and closing
+tags. The reported position may follow the real mistake, so check the previous line.
+Smart quotes pasted from prose can break JavaScript. Copy examples from code blocks.
+
+**Invalid config / metadata error:** config is read without running source. Write
+literal strings, numbers, booleans, arrays and plain objects. Don't compute a name,
+spread another object into config, or call helpers there. Put logic in functions.
+
+**Import/module/export error:** use supported `kite` and `kite/ui` imports. Node,
+browser and arbitrary npm dependencies aren't available. Check spelling and export
+`widget`, `shortcut`, `control` or `run`. Relative modules require their files to be
+present in the library; start with one complete file when diagnosing imports.
+
+## Runtime errors
+
+**Undefined / cannot read property:** inspect the value before accessing a field.
+A setting may be absent, storage may have no value, and a network response may not
+match your assumed shape. Use defaults and validate untrusted JSON. Phone compilation
+strips types; it doesn't prove that external data matches a TypeScript annotation.
+
+**Timeout:** remove endless loops and unnecessary work. Cache requests and reduce
+large inputs. Don't try to keep a script running to animate a widget. A deadline is
+cooperative; it doesn't make every native call or engine built-in interruptible.
+
+**Invalid result:** widget must return a Widget tree or dated entries containing
+`date` and `view`. Don't return raw strings, Promises you forgot to await inside
+data, or circular JavaScript objects. See the first-widget example.
+
+## Requests and permissions
+
+**Permission denied / undeclared permission:** add the relevant literal permission
+in config, then Run in the app. Widgets and controls cannot present authorization
+prompts. If you already denied system access, review Kite in iOS Settings. Return
+safe fallback content when permission stays denied. Network declaration is required
+but doesn't itself grant access to calendar, location or other protected data.
+
+**HTTP failure:** check status with `http.fetch` and verify the URL, authentication,
+service response and connectivity. Log a status or a redacted summary, not an API
+key or the full private response. Cache can serve old content; shorten the cache
+window while diagnosing, then restore a reasonable window. API keys belong in secrets.
+
+**Photo blank:** load through `http.image`, pass the returned source to Image, and
+provide an aspect and useful space in the layout. Run online in the app first.
+Handle download failure with text or an SF Symbol. Don't assume a remote URL is a
+local cached image source. Quiet Frame is a working reference.
+
+## Widget problems
+
+**Script absent:** Run in Kite and resolve compile errors first. Export widget and
+declare the family you're adding. Pick Kite Script, not an internal benchmark widget.
+Refresh the library after copying a file through Files.
+
+**Preview works, Home Screen is stale or blank:** verify the widget's selected script
+and setting slots, Run again in Kite, and wait for the system's reload. Refresh is a
+hint. Preview and real widgets have different execution environments and budgets.
+A prior failure can leave the last good render visible. Inspect logs/Diagnostics for
+that surface before assuming your latest edit ran. Record the time, script, size,
+iOS version and screenshot if the problem persists.
+
+**Button does nothing:** pass an exported function reference to intent, not a call.
+Save state with storage, return `{ reload: true }`, and render the state again.
+A value held only in a module variable disappears after execution. Keep handler
+parameters JSON-compatible. Test Preview and Home Screen separately.
+
+**Lock Screen looks different:** accessory widgets use system tinting and small
+layouts. Background colors and full Home Screen compositions won't transfer directly.
+Test the exact accessory family and reduce content.
+
+## Shortcuts and controls
+
+**No shortcut output:** export shortcut(input), supply input in the Shortcuts action,
+and choose the action matching text/JSON, number or file output. A console log isn't
+the returned result. Check Preview output first, then Show Result in Shortcuts.
+
+**Control missing:** export a control with kind toggle or button. Run in Kite, then
+add the corresponding Kite Toggle or Kite Button and choose the script. Merely
+exporting control doesn't add it to Control Center automatically.
+
+**Control resets:** implement get() using persistent storage, and write the same
+key in set(on). A control with a boolean variable at file scope loses it each run.
+
+## Recovery without losing scripts
+
+Copy the script file somewhere safe before large edits. Removing a Home Screen
+widget doesn't fix source errors. Avoid reinstalling Kite as an initial debugging
+step: local files and state may be lost. Keep a backup and use a fresh copy of the
+smallest example to separate source problems from environment problems.
+
+For a useful bug report include: the smallest script that reproduces it (secrets
+removed), what you expected, what happened, family/surface, app build, iOS version,
+and relevant redacted logs. Device benchmark CSV is useful for the three-day
+reliability test, but isn't required for an ordinary syntax question.
+
+
+---
+
+# Exact public type declarations
+
+```ts
+// @kite/types — public declarations for Kite scripts.
+// Every public JS API must be declared here and covered by a fixture.
+
+/** Declares a script's static metadata. Kite reads it without running the script. */
+declare function defineScript<const C extends import("kite").ScriptConfig>(config: C): C;
+
+/** Script globals provided by Kite's runtime (no DOM or Node APIs). */
+declare const console: {
+  log(...values: unknown[]): void;
+  info(...values: unknown[]): void;
+  debug(...values: unknown[]): void;
+  warn(...values: unknown[]): void;
+  error(...values: unknown[]): void;
+};
+/** Timers run within the script's deadline; a pending timer does not extend it. */
+declare function setTimeout(callback: (...args: any[]) => void, milliseconds?: number, ...args: any[]): number;
+declare function clearTimeout(id: number | undefined): void;
+
+declare namespace JSX {
+  type Element = import("kite/ui").WidgetNode;
+  interface ElementChildrenAttribute { children: {}; }
+  interface IntrinsicAttributes { key?: string | number; }
+}
+
+declare module "kite" {
+  export type Family = "small" | "medium" | "large" | "extraLarge" | "accessoryCircular" | "accessoryRectangular" | "accessoryInline";
+  export type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue };
+  export type Surface = "app" | "widget" | "intent" | "control" | "shortcut";
+  export type Permission = "network" | "files" | "calendar" | "reminders" | "location" | "notifications";
+
+  export type SettingDeclaration =
+    | { type: "enum"; options: readonly string[]; default?: string; title?: string }
+    | { type: "text"; default?: string; title?: string; placeholder?: string }
+    | { type: "number"; default?: number; min?: number; max?: number; title?: string }
+    | { type: "toggle"; default?: boolean; title?: string }
+    | { type: "color"; default?: string; title?: string }
+    | { type: "secret"; title?: string };
+
+  export interface ScriptConfig {
+    name?: string;
+    description?: string;
+    icon?: { symbol: string; color?: string };
+    widget?: {
+      families?: readonly Family[];
+      /** A hint for the next timeline request. iOS decides when widgets actually refresh. */
+      refresh?: "never" | "15m" | "30m" | "hourly" | "daily" | number;
+    };
+    /** Shown natively when the user edits the widget. Secrets live in the Keychain. */
+    settings?: Record<string, SettingDeclaration>;
+    permissions?: readonly Permission[];
+  }
+
+  export type SettingValues = Record<string, string | number | boolean | undefined> & { parameter?: string };
+
+  export interface WidgetContext {
+    family: Family;
+    settings: SettingValues;
+    surface: Surface;
+    /** ISO 8601 time of this run. */
+    date: string;
+    /** Point size of the widget, when known. */
+    displaySize: { width: number; height: number };
+    scriptId: string;
+  }
+
+  export interface TimelineEntry { date: Date | string | number; view: import("kite/ui").WidgetNode; }
+  export type WidgetResult = import("kite/ui").WidgetNode | TimelineEntry[];
+  export interface IntentResult { reload?: boolean }
+
+  export interface ControlToggle { kind: "toggle"; title?: string; symbol?: string; get(): boolean | Promise<boolean>; set(on: boolean): void | IntentResult | Promise<void | IntentResult>; }
+  export interface ControlButton { kind: "button"; title?: string; symbol?: string; press(): void | IntentResult | Promise<void | IntentResult>; }
+  export type Control = ControlToggle | ControlButton;
+
+  export function defineScript<const C extends ScriptConfig>(config: C): C;
+
+  // ---- http -----------------------------------------------------------------
+  export interface RequestOptions {
+    method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
+    headers?: Record<string, string>;
+    body?: string;
+    /** Serve from Kite's shared cache when fresher than this, e.g. "30s", "15m", "1h", "1d". */
+    cache?: string;
+    /** Seconds, default 15, max 30. */
+    timeout?: number;
+  }
+  export interface Response {
+    readonly status: number;
+    readonly ok: boolean;
+    readonly headers: Record<string, string>;
+    readonly url: string;
+    readonly fromCache: boolean;
+    readonly body: string;
+    text(): Promise<string>;
+    json<T = any>(): Promise<T>;
+  }
+  export interface ImageOptions extends Pick<RequestOptions, "headers" | "cache" | "timeout"> {
+    /** Longest edge in pixels. Defaults to the widget's pixel size. Images are downscaled natively. */
+    maxPixelSize?: number;
+  }
+  export const http: {
+    fetch(url: string, options?: RequestOptions): Promise<Response>;
+    json<T = any>(url: string, options?: RequestOptions): Promise<T>;
+    /** Downloads and natively downscales an image. Returns a source for <Image src>. */
+    image(url: string, options?: ImageOptions): Promise<string>;
+  };
+
+  // ---- storage / secrets / files -------------------------------------------------
+  /** JSON values shared by this script's app runs, widgets, intents and controls. */
+  export const storage: {
+    get<T extends JSONValue = JSONValue>(key: string): Promise<T | undefined>;
+    set(key: string, value: JSONValue): Promise<void>;
+    update<T extends JSONValue = JSONValue>(key: string, fn: (value: T | undefined) => T | Promise<T>): Promise<T>;
+    remove(key: string): Promise<void>;
+    keys(): Promise<string[]>;
+  };
+  /** Keychain items private to this script. */
+  export const secrets: {
+    get(name: string): Promise<string | undefined>;
+    set(name: string, value: string): Promise<void>;
+    remove(name: string): Promise<void>;
+  };
+  export interface FileOptions {
+    /** "local" (default, shared with widgets) or "icloud" (app only). */
+    location?: "local" | "icloud";
+  }
+  export interface FileEntry { name: string; path: string; isDirectory: boolean; size: number; modified: string }
+  export const files: {
+    read(path: string, options?: FileOptions): Promise<string>;
+    write(path: string, text: string, options?: FileOptions): Promise<void>;
+    append(path: string, text: string, options?: FileOptions): Promise<void>;
+    list(path?: string, options?: FileOptions): Promise<FileEntry[]>;
+    exists(path: string, options?: FileOptions): Promise<boolean>;
+    remove(path: string, options?: FileOptions): Promise<void>;
+    /** Path prefix for a folder bookmarked in Kite's settings, e.g. "bookmark:Notes/". */
+    bookmark(name: string): Promise<string>;
+  };
+
+  // ---- calendar / reminders -------------------------------------------------------
+  export interface CalendarInfo { id: string; title: string; color: string; allowsModifications: boolean }
+  export interface CalendarEvent {
+    id: string; title: string; start: Date; end: Date; isAllDay: boolean;
+    location?: string; notes?: string; calendar: string; calendarColor: string;
+  }
+  export interface NewEvent { title: string; start: Date | string; end: Date | string; isAllDay?: boolean; location?: string; notes?: string; calendar?: string }
+  export const calendar: {
+    calendars(): Promise<CalendarInfo[]>;
+    events(options?: { from?: Date | string; to?: Date | string; calendars?: string[]; limit?: number }): Promise<CalendarEvent[]>;
+    createEvent(event: NewEvent): Promise<CalendarEvent>;
+  };
+  export interface Reminder { id: string; title: string; due?: Date; completed: boolean; completedAt?: Date; notes?: string; list: string; priority: number }
+  export const reminders: {
+    list(options?: { due?: Date | string; completed?: boolean; lists?: string[]; limit?: number }): Promise<Reminder[]>;
+    create(reminder: { title: string; due?: Date | string; notes?: string; list?: string; priority?: number }): Promise<Reminder>;
+    complete(id: string): Promise<void>;
+  };
+
+  // ---- location / notify / device / log -------------------------------------------
+  export interface Coordinates { latitude: number; longitude: number; accuracy: number; altitude?: number; timestamp: Date }
+  export interface Place { name?: string; locality?: string; region?: string; country?: string; postalCode?: string; latitude: number; longitude: number }
+  export const location: {
+    current(options?: { accuracy?: "best" | "tenMeters" | "hundredMeters" | "kilometer" | "threeKilometers" }): Promise<Coordinates>;
+    geocode(query: string): Promise<Place[]>;
+    reverse(latitude: number, longitude: number): Promise<Place[]>;
+  };
+  export const notify: {
+    /** Returns the notification id. `action` is a URL opened when the notification is tapped. */
+    schedule(options: { title: string; body?: string; at?: Date | string; action?: string; id?: string }): Promise<string>;
+    cancel(id: string): Promise<void>;
+  };
+  export const device: {
+    readonly locale: string;
+    readonly colorScheme: "light" | "dark";
+    readonly screen: { width: number; height: number; scale: number };
+    readonly model: string;
+    readonly systemVersion: string;
+    battery(): Promise<{ level: number | null; state: "unknown" | "unplugged" | "charging" | "full" }>;
+  };
+  export const log: {
+    debug(...values: unknown[]): void;
+    info(...values: unknown[]): void;
+    warn(...values: unknown[]): void;
+    error(...values: unknown[]): void;
+  };
+}
+
+declare module "kite/ui" {
+  import type { JSONValue } from "kite";
+
+  /** The JSON tree that JSX compiles to. No React runtime ships. */
+  export interface WidgetNode {
+    type: string;
+    props?: Record<string, JSONValue>;
+    children?: (WidgetNode | string)[];
+  }
+  type Child = WidgetNode | string | number | boolean | null | undefined | Child[];
+  type Color = string;
+  type Length = number | "infinity";
+  type Alignment = "center" | "leading" | "trailing" | "top" | "bottom" | "topLeading" | "topTrailing" | "bottomLeading" | "bottomTrailing";
+  type Font = "largeTitle" | "title" | "title2" | "title3" | "headline" | "subheadline" | "body" | "callout" | "footnote" | "caption" | "caption2";
+  type IntentFunction = (params: any) => unknown;
+
+  /** Modifiers available on every component. */
+  export interface Modifiers {
+    padding?: number | { top?: number; leading?: number; bottom?: number; trailing?: number; horizontal?: number; vertical?: number };
+    frame?: { width?: number; height?: number; minWidth?: number; maxWidth?: Length; minHeight?: number; maxHeight?: Length; alignment?: Alignment };
+    background?: Color;
+    cornerRadius?: number;
+    opacity?: number;
+    foreground?: Color;
+    widgetAccentable?: boolean;
+    privacySensitive?: boolean;
+  }
+  interface Container extends Modifiers { children?: Child }
+
+  export function Widget(props: Container & { url?: string; background?: Color; relevance?: number }): WidgetNode;
+  export function VStack(props: Container & { align?: "leading" | "center" | "trailing"; spacing?: number }): WidgetNode;
+  export function HStack(props: Container & { align?: "top" | "center" | "bottom"; spacing?: number }): WidgetNode;
+  export function ZStack(props: Container & { align?: Alignment }): WidgetNode;
+  export function Grid(props: Container & { hSpacing?: number; vSpacing?: number; align?: Alignment }): WidgetNode;
+  export function GridRow(props: Container): WidgetNode;
+  export function Text(props: Modifiers & { font?: Font; color?: Color; weight?: "regular" | "medium" | "semibold" | "bold" | "heavy"; design?: "default" | "rounded" | "monospaced" | "serif"; lineLimit?: number; minScale?: number; align?: "leading" | "center" | "trailing"; children?: Child }): WidgetNode;
+  export function Image(props: Modifiers & { src?: string; symbol?: string; resizable?: boolean; aspect?: "fit" | "fill"; color?: Color; font?: Font }): WidgetNode;
+  /** A date that updates live without a refresh. Note: importing it as `Date` shadows the global Date in that file; prefer DateText. */
+  export function Date(props: Modifiers & { value: globalThis.Date | string | number; style?: "relative" | "timer" | "time" | "date" | "offset"; font?: Font; color?: Color }): WidgetNode;
+  export const DateText: typeof Date;
+  export function Gauge(props: Modifiers & { value: number; range?: [number, number]; label?: string; style?: "linear" | "circular"; color?: Color }): WidgetNode;
+  export function ProgressView(props: Modifiers & { value: number; total?: number; label?: string; color?: Color }): WidgetNode;
+  export function Chart(props: Modifiers & { data: Record<string, JSONValue>[]; mark?: "line" | "bar" | "area" | "point"; x: string; y: string; color?: Color }): WidgetNode;
+  /** Runs an exported script function in the widget extension, then reloads the widget. */
+  export function Button(props: Modifiers & { intent: IntentFunction; params?: Record<string, JSONValue>; symbol?: string; label?: string; children?: Child }): WidgetNode;
+  /** `isOn` comes from the script, so it survives reloads; iOS shows the new state while the intent runs. */
+  export function Toggle(props: Modifiers & { isOn: boolean; intent: IntentFunction; params?: Record<string, JSONValue>; label?: string; symbol?: string; children?: Child }): WidgetNode;
+  export function Link(props: Container & { url: string }): WidgetNode;
+  export function Spacer(props?: Modifiers & { minLength?: number }): WidgetNode;
+  export function Divider(props?: Modifiers): WidgetNode;
+}
+
+```
+
+# Complete example: Daylight
+
+```tsx
+import type { WidgetContext } from "kite";
+import { Widget, VStack, HStack, Text, Image, Spacer, ProgressView, DateText } from "kite/ui";
+
+export const config = defineScript({
+  name: "Daylight",
+  description: "A quiet daily dashboard with a countdown to midnight. No network needed.",
+  icon: { symbol: "sun.horizon.fill", color: "#72DCC5" },
+  widget: { families: ["small", "medium", "large"], refresh: "hourly" },
+});
+
+function card(ctx: WidgetContext, date: Date) {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const start = new Date(date); start.setHours(0, 0, 0, 0);
+  const end = new Date(start); end.setDate(end.getDate() + 1);
+  const progress = (date.getTime() - start.getTime()) / (end.getTime() - start.getTime());
+  const small = ctx.family === "small";
+  return (
+    <Widget background="#0D1C2C">
+      <VStack align="leading" spacing={small ? 7 : 10} frame={{ maxWidth: "infinity", maxHeight: "infinity", alignment: "leading" }}>
+        <HStack spacing={6}>
+          <Image symbol="sun.horizon.fill" font="caption" color="#72DCC5" />
+          <Text font="caption2" weight="semibold" color="#72DCC5">{days[date.getDay()].toUpperCase()}</Text>
+          <Spacer minLength={0} />
+          {!small && <Text font="caption2" color="#A5B9CA">A LITTLE ROOM FOR GOOD THINGS</Text>}
+        </HStack>
+        <HStack align="center" spacing={12}>
+          <Text font="largeTitle" weight="heavy" design="rounded" color="#FFFFFF" lineLimit={1} minScale={0.6}>
+            {months[date.getMonth()]} {date.getDate()}
+          </Text>
+          {!small && <Spacer minLength={0} />}
+          {!small && <VStack align="trailing" spacing={3}>
+            <Text font="caption2" color="#A5B9CA">LEFT TODAY</Text>
+            <DateText value={end} style="timer" font="title2" color="#FFFFFF" />
+          </VStack>}
+        </HStack>
+        <Spacer minLength={0} />
+        {ctx.family === "large" && <VStack align="leading" spacing={8} padding={16} background="#172D40" cornerRadius={18} frame={{ maxWidth: "infinity", alignment: "leading" }}>
+          <Text font="title2" weight="semibold" color="#FFFFFF">One small thing.</Text>
+          <Text font="body" color="#BED0DE">Choose something that would make today feel well spent.</Text>
+        </VStack>}
+        <ProgressView value={progress} color="#72DCC5" />
+        <Text font="caption2" color="#A5B9CA">{Math.floor(progress * 100)}% of today · make the rest yours</Text>
+      </VStack>
+    </Widget>
+  );
+}
+
+export function widget(ctx: WidgetContext) {
+  const now = new Date(ctx.date);
+  // Fifteen-minute dated entries update the progress value without JS polling.
+  // The native timer counts down live; iOS still controls timeline scheduling.
+  return Array.from({ length: 9 }, (_, index) => {
+    const date = new Date(now.getTime() + index * 15 * 60 * 1000);
+    return { date, view: card(ctx, date) };
+  });
+}
+
+```
+
+# Complete example: Focus Session
+
+```tsx
+import { storage } from "kite";
+import type { WidgetContext, Control } from "kite";
+import { Widget, VStack, HStack, Text, Image, Button, Spacer, DateText } from "kite/ui";
+
+export const config = defineScript({
+  name: "Focus Session",
+  description: "A 25-minute focus timer. Start/stop from the widget or start from Control Center.",
+  icon: { symbol: "moon.stars.fill", color: "#C4B5FD" },
+  widget: { families: ["small", "medium", "large", "accessoryRectangular"], refresh: "hourly" },
+});
+
+export async function startFocus() {
+  await storage.set("focusEnd", Date.now() + 25 * 60 * 1000);
+  return { reload: true };
+}
+export async function stopFocus() {
+  await storage.remove("focusEnd");
+  return { reload: true };
+}
+
+function card(ctx: WidgetContext, end: number, active: boolean) {
+  const lock = ctx.family === "accessoryRectangular";
+  if (lock) return <Widget><VStack align="leading" spacing={2}>
+    <Text font="headline">{active ? "Focus in progress" : "Room to focus"}</Text>
+    {active ? <DateText value={new Date(end)} style="timer" font="title3" /> : <Text font="caption">Start a session from Control Center.</Text>}
+  </VStack></Widget>;
+  return <Widget background="#1B1530"><VStack align="leading" spacing={8} frame={{ maxWidth: "infinity", maxHeight: "infinity", alignment: "leading" }}>
+    <HStack spacing={6}>
+      <Image symbol="moon.stars.fill" font="caption" color="#C4B5FD" />
+      <Text font="caption2" weight="bold" color="#C4B5FD">FOCUS SESSION</Text>
+      <Spacer minLength={0} />
+    </HStack>
+    {active ? <DateText value={new Date(end)} style="timer" font="largeTitle" color="#FFFFFF" /> : <Text font="largeTitle" weight="heavy" design="rounded" color="#FFFFFF">25:00</Text>}
+    <Text font="caption" color="#C4B5FD">{active ? "One thing at a time." : "Make room for one thing."}</Text>
+    <Spacer minLength={0} />
+    {ctx.family === "large" && <Text font="title2" weight="semibold" color="#FFFFFF">A small pocket of undivided attention.</Text>}
+    <Button intent={active ? stopFocus : startFocus} symbol={active ? "stop.circle" : "play.circle.fill"} label={active ? "Stop" : ctx.family === "small" ? "Start" : "Start 25 min"} foreground="#C4B5FD" />
+  </VStack></Widget>;
+}
+
+export async function widget(ctx: WidgetContext) {
+  const saved = await storage.get<number>("focusEnd");
+  const end = typeof saved === "number" && Number.isFinite(saved) ? saved : 0;
+  const now = new Date(ctx.date);
+  const active = end > now.getTime();
+  const current = { date: now, view: card(ctx, end, active) };
+  // The second entry ends the countdown display when the session finishes.
+  return active ? [current, { date: new Date(end), view: card(ctx, end, false) }] : [current];
+}
+
+export const control: Control = {
+  kind: "button", title: "Start focus", symbol: "moon.stars.fill",
+  async press() { return startFocus(); },
+};
+export async function run() {
+  console.log("Use Start in the preview/widget, or add Kite Button → Focus Session in Control Center.");
+}
+
+```
+
+# Complete example: Quiet Frame
+
+```tsx
+import { http } from "kite";
+import type { WidgetContext } from "kite";
+import { Widget, ZStack, VStack, Text, Image } from "kite/ui";
+
+export const config = defineScript({
+  name: "Quiet Frame",
+  description: "A landscape photo card. Uses Kite's native image downscaling and a one-day cache.",
+  icon: { symbol: "photo.on.rectangle.angled", color: "#B1DAC6" },
+  widget: { families: ["small", "medium", "large"], refresh: "hourly" },
+  settings: { caption: { type: "text", title: "Caption", default: "Take the scenic route." } },
+  permissions: ["network"],
+});
+
+export async function widget(ctx: WidgetContext) {
+  const width = Math.max(80, (ctx.displaySize?.width || 338) - 32);
+  const height = Math.max(80, (ctx.displaySize?.height || 158) - 32);
+  try {
+    // Use http.image, rather than putting the remote URL directly into <Image>.
+    // Kite downloads and downsizes it natively for the current widget dimensions.
+    const photo = await http.image("https://picsum.photos/id/10/1200/900", { cache: "1d" });
+    return <Widget background="#10251E">
+      <ZStack align="bottomLeading" frame={{ width, height }} cornerRadius={18}>
+        <Image src={photo} resizable aspect="fill" frame={{ width, height }} />
+        <VStack align="leading" spacing={3} padding={10} background="#10251E" opacity={0.94} frame={{ maxWidth: "infinity", alignment: "leading" }}>
+          <Text font="caption2" weight="bold" color="#B1DAC6">PAUSE &amp; LOOK</Text>
+          <Text font="headline" color="#FFFFFF" lineLimit={1} minScale={0.7}>{String(ctx.settings.caption || "Take the scenic route.")}</Text>
+        </VStack>
+      </ZStack>
+    </Widget>;
+  } catch (error) {
+    console.warn("Quiet Frame:", String(error));
+    return <Widget background="#10251E"><VStack spacing={8}>
+      <Image symbol="photo" font="largeTitle" color="#B1DAC6" />
+      <Text font="headline" color="#FFFFFF">A quiet moment.</Text>
+      <Text font="caption" color="#B1DAC6">Run in Kite with internet access to load the photo.</Text>
+    </VStack></Widget>;
+  }
+}
+
+```
+
+# Complete example: Water Garden
+
+```tsx
+import { storage } from "kite";
+import type { WidgetContext } from "kite";
+import { Widget, VStack, HStack, Text, Image, Button, Spacer, ProgressView } from "kite/ui";
+
+export const config = defineScript({
+  name: "Water Garden",
+  description: "A daily counter with + and undo buttons. The goal is yours to choose.",
+  icon: { symbol: "drop.fill", color: "#17866B" },
+  widget: { families: ["small", "medium", "large"], refresh: "hourly" },
+  settings: { goal: { type: "number", title: "Daily goal", default: 8, min: 1, max: 24 } },
+});
+
+function today() {
+  const d = new Date();
+  return `water-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+function count(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0, Math.min(99, Math.floor(n))) : 0;
+}
+export async function addGlass() {
+  await storage.update<number>(today(), value => Math.min(99, count(value) + 1));
+  return { reload: true };
+}
+export async function undoGlass() {
+  await storage.update<number>(today(), value => Math.max(0, count(value) - 1));
+  return { reload: true };
+}
+
+export async function widget(ctx: WidgetContext) {
+  const glasses = count(await storage.get<number>(today()));
+  const goal = Math.max(1, Math.min(24, count(ctx.settings.goal ?? 8)));
+  const small = ctx.family === "small";
+  return (
+    <Widget background="#EDF7EF">
+      <VStack align="leading" spacing={small ? 5 : 9} frame={{ maxWidth: "infinity", maxHeight: "infinity", alignment: "leading" }}>
+        <HStack spacing={5}>
+          <Image symbol="drop.fill" font="caption" color="#17866B" />
+          <Text font="caption2" weight="bold" color="#17866B">WATER GARDEN</Text>
+          <Spacer minLength={0} />
+          {!small && <Text font="caption2" color="#527365">FRESH START, EVERY DAY</Text>}
+        </HStack>
+        <HStack align="center" spacing={6}>
+          <Text font="largeTitle" weight="heavy" design="rounded" color="#153E31">{glasses}</Text>
+          <Text font="title3" color="#527365">/ {goal}</Text>
+          <Spacer minLength={0} />
+          {!small && <Image symbol="leaf.circle.fill" font="largeTitle" color="#17866B" />}
+        </HStack>
+        {ctx.family === "large" && <HStack spacing={6}>
+          {Array.from({ length: Math.min(goal, 10) }, (_, i) => <Image key={i} symbol={i < glasses ? "drop.fill" : "drop"} font="title3" color={i < glasses ? "#17866B" : "#A9C5B5"} />)}
+        </HStack>}
+        <ProgressView value={Math.min(glasses, goal)} total={goal} color="#17866B" />
+        <Text font="caption2" color="#527365">{glasses >= goal ? "Your goal is complete." : "A little, often."}</Text>
+        <Spacer minLength={0} />
+        <HStack spacing={12}>
+          <Button intent={undoGlass} symbol="minus.circle" label={small ? "" : "Undo"} foreground="#527365" />
+          <Spacer minLength={0} />
+          <Button intent={addGlass} symbol="plus.circle.fill" label={small ? "" : "Add"} foreground="#17866B" />
+        </HStack>
+      </VStack>
+    </Widget>
+  );
+}
+
+export async function run() {
+  console.log(`${count(await storage.get<number>(today()))} glasses recorded today. Use the preview or widget buttons to change it.`);
+}
+
+```

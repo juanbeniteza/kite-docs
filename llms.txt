@@ -1,0 +1,11 @@
+# Kite
+
+> JavaScript/TypeScript scripts that create native iOS widgets, Shortcuts actions and Control Center controls. JSX describes native nodes; no React, DOM or Node runtime.
+
+## Start here
+
+- [Agent guide](https://juanbeniteza.github.io/kite-docs/agent-guide.txt): Output contract, supported surfaces and hard limits.
+- [Complete documentation bundle](https://juanbeniteza.github.io/kite-docs/llms-full.txt): Guides, exact declarations and runnable examples in one text file.
+- [Type declarations](https://juanbeniteza.github.io/kite-docs/types/index.d.ts): Exact public signatures.
+- [Human overview](https://juanbeniteza.github.io/kite-docs/How-Kite-works.html): How scripts become widgets.
+- [Troubleshooting](https://juanbeniteza.github.io/kite-docs/Troubleshooting.html): Common failures and recovery.
