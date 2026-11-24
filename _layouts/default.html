@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} · Kite Docs</title>
+  <meta name="description" content="Learn to create JavaScript and TypeScript widgets, shortcuts and controls with Kite.">
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  <script defer src="{{ '/assets/help.js' | relative_url }}" data-search="{{ '/search.json' | relative_url }}" data-base="{{ '/' | relative_url }}"></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header><a class="brand" href="{{ '/' | relative_url }}"><span aria-hidden="true">◆</span> Kite <small>Docs</small></a><a href="https://github.com/juanbeniteza/kite-docs">GitHub ↗</a></header>
+  <div class="shell">
+    <aside aria-label="Documentation navigation">
+      <label for="search">Search documentation</label>
+      <input id="search" type="search" placeholder="Try buttons or permissions…" autocomplete="off">
+      <div id="results" role="status" aria-live="polite"></div>
+      <nav>
+        {% for item in site.data.navigation %}<a {% if page.url == item.url %}aria-current="page"{% endif %} href="{{ item.url | relative_url }}">{{ item.title | escape }}</a>{% endfor %}
+      </nav>
+      <p class="hint">Write scripts on your iPhone.<br>No computer required.</p>
+    </aside>
+    <main id="content">{{ content }}<footer>Kite scripting documentation · <a href="https://github.com/juanbeniteza/kite-docs">Source and corrections ↗</a></footer></main>
+  </div>
+</body>
+</html>

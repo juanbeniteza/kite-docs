@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Overview",
+    "url": "/"
+  },
+  {
+    "title": "Your first widget",
+    "url": "/Getting-started.html"
+  },
+  {
+    "title": "Build a daily intention widget",
+    "url": "/Progressive-tutorial.html"
+  },
+  {
+    "title": "Scripting guide",
+    "url": "/Scripting-guide.html"
+  },
+  {
+    "title": "API reference",
+    "url": "/API-reference.html"
+  },
+  {
+    "title": "Troubleshooting",
+    "url": "/Troubleshooting.html"
+  },
+  {
+    "title": "Example scripts",
+    "url": "/Examples.html"
+  }
+]

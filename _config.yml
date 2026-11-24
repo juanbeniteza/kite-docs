@@ -1,0 +1,7 @@
+title: Kite Docs
+url: "https://juanbeniteza.github.io"
+baseurl: "/kite-docs"
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude: [README.md]
