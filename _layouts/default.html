@@ -4,12 +4,14 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page.title | escape }} · Kite Docs</title>
   <meta name="description" content="Learn to create JavaScript and TypeScript widgets, shortcuts and controls with Kite.">
+  <link rel="icon" type="image/png" href="{{ '/assets/favicon.png' | relative_url }}">
+  <link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
   <script defer src="{{ '/assets/help.js' | relative_url }}" data-search="{{ '/search.json' | relative_url }}" data-base="{{ '/' | relative_url }}"></script>
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <header><a class="brand" href="{{ '/' | relative_url }}"><span aria-hidden="true">◆</span> Kite <small>Docs</small></a><a href="https://github.com/juanbeniteza/kite-docs">GitHub ↗</a></header>
+  <header><a class="brand" href="{{ '/' | relative_url }}"><picture><source media="(prefers-color-scheme: dark)" srcset="{{ '/assets/app-icon-dark.png' | relative_url }}"><img src="{{ '/assets/app-icon.png' | relative_url }}" width="40" height="40" alt=""></picture> Kite <small>Docs</small></a><a href="https://github.com/juanbeniteza/kite-docs">GitHub ↗</a></header>
   <div class="shell">
     <aside aria-label="Documentation navigation">
       <label for="search">Search documentation</label>
