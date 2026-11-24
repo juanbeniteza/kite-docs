@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 2 38 47">
+<style>.primary{fill:#D95138}.secondary{fill:#F18B64}.tail{stroke:#D95138}@media(prefers-color-scheme:dark){.primary{fill:#FFAA8D}.secondary{fill:#ED765B}.tail{stroke:#FFAA8D}}</style>
+<g transform="translate(-14 -7) scale(.065)"><g class="primary"><path d="M609.18 209.89 L563.84 368.01 A22.00 22.00 0 0 1 536.62 383.09 L400.32 344.01 A22.00 22.00 0 0 1 394.32 304.46 L575.97 185.43 A22.00 22.00 0 0 1 609.18 209.89 Z"/><path d="M595.38 424.91 L745.52 467.96 A22.00 22.00 0 0 1 754.53 505.14 L532.05 714.32 A22.00 22.00 0 0 1 495.83 692.23 L568.16 439.99 A22.00 22.00 0 0 1 595.38 424.91 Z"/></g><g class="secondary"><path d="M673.37 213.36 L764.34 410.56 A22.00 22.00 0 0 1 738.30 440.92 L601.99 401.84 A22.00 22.00 0 0 1 586.91 374.62 L632.25 216.51 A22.00 22.00 0 0 1 673.37 213.36 Z"/><path d="M379.87 363.11 L530.01 406.16 A22.00 22.00 0 0 1 545.09 433.38 L472.76 685.62 A22.00 22.00 0 0 1 430.34 685.16 L352.53 389.86 A22.00 22.00 0 0 1 379.87 363.11 Z"/></g></g>
+<path class="tail" d="M16.5 41 C14.5 47 10 41 5 46" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
